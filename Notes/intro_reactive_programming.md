@@ -51,7 +51,7 @@ Reactive Programming is widely used in modern web applications, microservices, a
 
 - [Spring Framework Documentation](https://docs.spring.io/spring-framework/docs/current/reference/html/)
 - [Reactive Streams Specification](https://www.reactive-streams.org/)
-- [Spring WebFlux](https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html)
+- [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html)
 
 ### Spring Reactive Spec
 ![alt text](/images/spring_reactive_spec.png "Spring Reactive Spec")
@@ -156,6 +156,9 @@ Reactive applications process data as streams, enabling asynchronous, non-blocki
 - Improved scalability and resource utilization.
 - Responsive and resilient systems.
 - Simplified asynchronous programming.
+- Enables developers to build non-blocking applications that can handle asynchronous and synchronous operations
+- Focuses on data streams and the propagation of change.
+- Useful for applications that need to handle a large number of concurrent users or data streams efficiently.
 
 ## Example (Pseudocode)
 
@@ -166,3 +169,90 @@ Flux<Integer> numbers = Flux.range(1, 5)
 
 numbers.subscribe(System.out::println);
 ```
+
+## Data Stream diagrams
+![alt text](/images/data_stream1.png "Data Stream diagrams")
+![alt text](/images/data_stream2.png "Data Stream diagrams")
+![alt text](/images/data_stream3.png "Data Stream diagrams")
+--
+
+## Back Pressure in Spring Reactive
+
+Back pressure is a mechanism to handle situations where a data producer is generating items faster than a consumer can process them. In Spring Reactive (using Project Reactor), back pressure ensures that the consumer is not overwhelmed by the producer.
+
+### Example
+
+```java
+Flux<Integer> fastProducer = Flux.range(1, 1000)
+    .delayElements(Duration.ofMillis(1)); // Produces items quickly
+
+fastProducer
+    .onBackpressureBuffer(100) // Buffer up to 100 items if overwhelmed
+    .publishOn(Schedulers.single(), 10) // Request 10 items at a time
+    .subscribe(
+        item -> {
+            // Simulate slow processing
+            Thread.sleep(50);
+            System.out.println("Consumed: " + item);
+        },
+        error -> System.err.println("Error: " + error),
+        () -> System.out.println("Completed")
+    );
+```
+
+**Explanation:**  
+- `onBackpressureBuffer(100)`: Buffers up to 100 items if the consumer is slow.
+- `publishOn(Schedulers.single(), 10)`: Requests 10 items at a time from the producer.
+- The consumer processes each item slowly (`Thread.sleep(50)`), demonstrating how back pressure prevents overload.
+
+Back pressure is essential in reactive systems to maintain stability and prevent resource exhaustion.
+
+
+## Back Pressure diagrams
+![alt text](/images/back_pressure.png "Back Pressure diagrams")
+
+## Simple Reactive demo
+[Refer here for running code](/src/ReactiveDemo/)
+```java
+@RestController
+public class ReactiveDemoController {
+
+    @GetMapping("/demo")
+    public Flux<String> getItems() {
+        return getItemsFromDatasource();
+    }
+
+    private Flux<String> getItemsFromDatasource() {
+        return Flux.just("Pen", "Pencil", "Eraser", "Notepad"); //Publisher
+    }
+
+    public static void main(String[] args) {
+        new ReactiveDemoController()
+                .getItems()
+                .log()
+                .subscribe(System.out::println);
+    }
+
+}
+```
+---
+## Explanation of the ReactiveDemoController Code
+
+This code defines a simple Spring WebFlux REST controller that demonstrates reactive programming using Project Reactor's `Flux`.
+
+### Key Components
+
+- **@RestController**: Marks the class as a REST controller, allowing it to handle HTTP requests.
+- **@GetMapping("/demo")**: Maps HTTP GET requests to the `/demo` endpoint to the `getItems()` method.
+- **Flux<String> getItems()**: Returns a reactive stream (`Flux`) of strings. When a client calls `/demo`, it receives a stream of items.
+- **getItemsFromDatasource()**: Simulates fetching data reactively by returning a `Flux` containing four items: "Pen", "Pencil", "Eraser", and "Notepad".
+- **main() method**: Demonstrates how the controller can be used outside of a web server. It creates an instance, retrieves the items, logs the reactive stream's events, and prints each item to the console.
+
+### How It Works
+
+1. When a GET request is made to `/demo`, the controller returns a reactive stream of items.
+2. The `Flux.just(...)` method creates a stream that emits the specified items.
+3. In the `main` method, the stream is subscribed to, triggering the emission and printing of each item.
+
+This example showcases the basics of building a reactive REST endpoint with Spring WebFlux and Project Reactor.
+
