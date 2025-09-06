@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: crud
+
+  r2dbc:
+    url: r2dbc:postgresql://127.0.0.1:5432/reactive_crud
+    username: postgres
+    password: Pikr@1991
+    pool:
+      initial-size: 5
+      max-size: 20
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+logging:
+  level:
+    io.r2dbc.postgresql: DEBUG
+    #org.springframework.r2dbc.core: DEBUG
+    #org.springframework.web.reactive: DEBUG
+    #reactor.core.publisher: DEBUG
+    #org.flywaydb: DEBUG

@@ -139,7 +139,8 @@ public class RouterConfig {
 ```
 
 This approach emphasizes immutability and composition, which are key principles of functional programming.
---
+
+---
 # Data Streams in Reactive Applications
 
 Reactive applications process data as streams, enabling asynchronous, non-blocking, and event-driven architectures. Data streams represent sequences of events or data items that can be observed and manipulated over time.

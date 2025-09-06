@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: reactive-microservice
+  r2dbc:
+    url: r2dbc:${app.datasource.baseUrl}
+    username: ${app.datasource.username}
+    password: ${app.datasource.password}
+    pool:
+      initial-size: 5
+      max-size: 20
+
+  flyway:
+    url: jdbc:${app.datasource.baseUrl}
+    user: ${app.datasource.username}
+    password: ${app.datasource.password}
+    locations: classpath:db/migration
+
+logging:
+  level:
+    io.r2dbc.postgresql: WARN
+
+app:
+  datasource:
+    host: 127.0.0.1
+    port: 5432
+    dbName: reactive_microservice
+    username: postgres
+    password: Pikr@1991
+    baseUrl: postgresql://${app.datasource.host}:${app.datasource.port}/${app.datasource.dbName}
+  token:
+    secret: dV7m9eFK6x0aJXkM4Nxk7aG5ryncn04y7vSEdHHfDBWuPQM6CnDwpzBZbEBfhb5A
+    accessTokenExpirySeconds: 900
+    refreshTokenExpirySeconds: 604800

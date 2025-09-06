@@ -1,0 +1,96 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.learning'
+version = '0.0.1-SNAPSHOT'
+description = 'reactive-microservice'
+
+ext {
+    openApiVersion = '2.8.12'
+    jwtVersion = '0.12.6'
+}
+
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot Starters
+    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+    // JWT (JJWT)
+    implementation  "io.jsonwebtoken:jjwt-api:${jwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jwtVersion}"
+
+    // OpenAPI / Swagger
+    implementation "org.springdoc:springdoc-openapi-starter-webflux-api:${openApiVersion}"
+    implementation "org.springdoc:springdoc-openapi-starter-webflux-ui:${openApiVersion}"
+
+    // Flyway & Database
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
+    implementation 'org.springframework:spring-jdbc'
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'org.postgresql:r2dbc-postgresql'
+
+    // MapStruct & Lombok
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.register('prefixNewMigrations') {
+    fileTree(dir: 'src/main/resources/db/migration').exclude({ isFileOldPrefix(it.file) || isFilePrefixed(it.file) }).each { file ->
+        doLast {
+            def timestamp = new Date().format('yyyyMMdddHHmmssSSSS', TimeZone.getTimeZone('GMT'))
+            def name = "${file.name}".replaceAll('(?:V1)?_\\d+__', '')
+            file.renameTo("$file.parentFile.absolutePath$file.separator${'V2_' + timestamp}__${name}")
+            sleep(1000)
+        }
+    }
+}
+
+static def isFilePrefixed(file) {
+    // return (file.name ==~ "^V(\\d+)_\\d{17}__.*\\.sql\$")
+    // this need to replaced with regex check
+    return file.name.startsWith("V")
+}
+
+static def isFileOldPrefix(file) {
+    // return (file.name ==~ "^V1_(?:[0-9]|1[0-9]|2[0-8])__.*\\.sql\$")
+    // this need to replaced with regex check
+    return file.name.startsWith("V1__")
+}

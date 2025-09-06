@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: request-handling
+  r2dbc:
+    url: r2dbc:h2:mem:///request_handlers;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  sql:
+    init:
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+logging:
+  level:
+    org.springframework.r2dbc.core: DEBUG
+    io.r2dbc.h2: DEBUG
+
+server:
+  error:
+    include-binding-errors: always
+    include-message: always
+    include-exception: true

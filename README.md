@@ -68,8 +68,8 @@ Understanding these differences helps in choosing the right technology stack for
 
 - [Introduction to traditional(Blocking) Applications](/Notes/intro_traditional_blocking_application.md)
 - [Introduction to Reactive Programming](/Notes/intro_reactive_programming.md)
-- [Getting Started](#getting-started)
-- [Features](#features)
+- [Spring Reactive Demo Project](/Notes/Reactive_spring_boot_demo_project.md)
+- [Handle HTTP Requests](/Notes/handle_http_request.md)
 - [Installation](#installation)
 - [Usage](#usage)
 - [FAQ](#faq)
